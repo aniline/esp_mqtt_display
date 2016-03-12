@@ -61,7 +61,9 @@ csn(bool mode)
 void send_str(char *buf) {
      int i = MAX_MSG;
      csn(0);
-     os_delay_us(1000);
+     /* Hack to give AVR enough time to get into character
+      * Originally set to 1ms, Have to fix it using AVR ISR later. */
+     os_delay_us(10000);
      while ((*buf) && i) {
 	  os_delay_us(10);
 	  SPI_transfer(*buf);

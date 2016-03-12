@@ -43,7 +43,7 @@ MQTT_Client mqttClient;
 void wifiConnectCb(uint8_t status)
 {
 	if(status == STATION_GOT_IP){
-	        send_str("3,1,Wifi Connected");
+	        send_str("10,0,ESP-WF");
 		MQTT_Connect(&mqttClient);
 	} else {
 		MQTT_Disconnect(&mqttClient);
@@ -54,14 +54,14 @@ void mqttConnectedCb(uint32_t *args)
 {
 	MQTT_Client* client = (MQTT_Client*)args;
 	INFO("MQTT: Connected\r\n");
-	send_str("3,1,MQTT Connected");
+	send_str("10,0,ESP-WF-MQ");
 	MQTT_Subscribe(client, "/leddisp1/show", 0);
 }
 
 void mqttDisconnectedCb(uint32_t *args)
 {
 	MQTT_Client* client = (MQTT_Client*)args;
-	send_str("3,1,MQTT Disconnected");
+	send_str("10,0,ESP-WF");
 	INFO("MQTT: Disconnected\r\n");
 }
 
@@ -92,9 +92,14 @@ void mqttDataCb(uint32_t *args, const char* topic, uint32_t topic_len, const cha
 	os_free(dataBuf);
 }
 
+void uart_putc1(char c) {
+     uart0_tx_buffer(&c, 1);
+}
+
 void user_init(void)
 {
 	uart_init(BIT_RATE_115200, BIT_RATE_115200);
+	os_install_putc1((void *)uart_putc1);
 	os_delay_us(1000000);
 
 	CFG_Load();
@@ -111,5 +116,5 @@ void user_init(void)
 	WIFI_Connect(sysCfg.sta_ssid, sysCfg.sta_pwd, wifiConnectCb);
 
 	INFO("\r\nSystem started ...\r\n");
-	send_str("3,0,ESP Start");
+	send_str("10,0,ESP");
 }
